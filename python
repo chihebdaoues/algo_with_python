@@ -1,0 +1,7 @@
+% module 
+** power
+slicing s[start:end]
+len()
+type()
+raw_input()
+range(m,n)=[m..n-1]

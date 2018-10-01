@@ -1,0 +1,101 @@
+from heapq import *
+def R(w):
+    r = []
+    emp=0
+    for i in range(9):
+        if(w & 2**i)!=0:
+            r.append(i+1);
+            emp+=1
+    return (r,emp)
+def testLig(L,c):
+    w=int('111111111', 2)
+    for i in range(9):
+        if L[c][i] ==0:
+            continue
+        elif(w & int(2**(L[c][i]-1)))==0:
+            return False
+        else:
+            w-=2**(L[c][i]-1)
+    return R(w)
+    
+def testCol(L,c):
+    w=int('111111111', 2)
+    for i in range(9):
+        if L[i][c]==0:
+            continue
+        elif(w & int(2**(L[i][c]-1)))==0:
+            return False
+        else:
+            w-=2**(L[i][c]-1)
+    return R(w)
+def testCase(L,c):
+    w=int('111111111', 2)
+    for i in range(3):
+        for j in range(3):
+            if L[(c//3)*3+i][(c%3)*3+j]==0:
+                continue
+            elif(w & int(2**(L[(c//3)*3+i][(c%3)*3+j]-1)))==0:
+                return False
+            else:
+                w-=2**(L[(c//3)*3+i][(c%3)*3+j]-1)
+    return R(w)
+def Complet(L):
+    emp=0;
+    for i in range(3):
+        for j in range(3):
+            case= testCase(L,i*3+j)
+            lig = testLig(L,i*3+j)
+            col = testCol(L,i*3+j)
+            if type(case)==bool or type(lig)==bool or type(col)==bool:
+                return False
+            else:
+                emp+=case[1]
+    return emp
+def intersect(a, b):
+    return list(set(a)&set(b))
+def nbrPos(L):
+    nbrP=[0,0,0,[]]
+    minP=10
+    for i in range(9):
+            for j in range(9):
+                if(L[i][j]!=0):
+                    continue
+                x=intersect(intersect(testLig(L,i)[0],testCol(L,j)[0]),
+                                     testCase(L,(i//3)*3+j//3)[0])
+                a=len(x)
+                nbrP[0]+=a
+                if(a<minP):
+                    minP=a
+                    nbrP=[nbrP[0],i,j,x]
+    return nbrP
+def solve(T):
+    heap = []
+    complet = Complet(T);
+    nbrP=nbrPos(T);
+    heappush(heap,(nbrP[0],nbrP,T))
+    END = True
+    while(END):
+        T = heappop(heap)
+        nbrP=T[1]
+        T=T[2]
+        for i in nbrP[3]:
+            T[nbrP[1]][nbrP[2]]=i;
+            complet = Complet(T)
+            if(type(complet)==int):
+                if(complet==0):
+                    END = False
+                    break
+                nbrPt=nbrPos(T);
+                heappush(heap,(nbrPt[0],nbrPt,[t[:] for t in T]))
+    for i in range(9):
+        for j in range(9):
+            print(T[i][j],end=" ")
+        print("\n");
+nbTest= int(input())
+L=[]
+for i in range(nbTest):
+    L.append([])
+    for j in range(9):
+        L[i].append( [ int(i) for i in input().strip().split(" ") ])
+for i in range(nbTest):
+    solve(L[i])
